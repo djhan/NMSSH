@@ -301,7 +301,74 @@
     
     return YES;
 }
-
+- (BOOL)readContentsAtPath:(NSString *)path
+                fromOffset:(uint64_t)offset
+                    length:(uint64_t)length
+                  toStream:(NSOutputStream *)outputStream
+                  progress:(BOOL (^)(NSUInteger, NSUInteger))progress {
+    LIBSSH2_SFTP_HANDLE *handle = [self openFileAtPath:path flags:LIBSSH2_FXF_READ mode:0];
+    
+    if (!handle) {
+        return NO;
+    }
+    
+    NMSFTPFile *file = [self infoForFileAtPath:path];
+    if (!file) {
+        NMSSHLogWarn(@"contentsAtPath:fromOffset:progress: failed to get file attributes");
+        return NO;
+    }
+    
+    if ([outputStream streamStatus] == NSStreamStatusNotOpen) {
+        [outputStream open];
+    }
+    
+    NSUInteger fileSize = (NSUInteger)[file.fileSize integerValue];
+    if (offset > 0) {
+        if (offset >= fileSize) {
+            NMSSHLogWarn(@"contentsAtPath:fromOffset:progress: offset이 fileSize 이상");
+            return false;
+        }
+        if (offset + length > fileSize) {
+            NMSSHLogWarn(@"contentsAtPath:fromOffset:progress: offset + length가 fileSize 이상");
+            return false;
+        }
+        [outputStream setProperty:[NSNumber numberWithUnsignedLongLong:offset] forKey:NSStreamFileCurrentOffsetKey];
+    }
+    
+    char buffer[self.bufferSize];
+    ssize_t rc;
+    NSUInteger got = 0;
+    while ((rc = libssh2_sftp_read(handle, buffer, (ssize_t)sizeof(buffer))) > 0) {
+        NSUInteger remainingBytes = rc;
+        NSInteger writeResult;
+        do {
+            writeResult = [outputStream write:(const uint8_t *)&buffer maxLength:remainingBytes];
+            remainingBytes -= MAX(0, writeResult);
+        } while (remainingBytes > 0 && writeResult > 0);
+        
+        if (writeResult < 0 || (writeResult == 0 && remainingBytes > 0)) {
+            libssh2_sftp_close(handle);
+            [outputStream close];
+            return NO;
+        }
+        
+        got += rc;
+        if (progress && !progress(got, length)) {
+            libssh2_sftp_close(handle);
+            [outputStream close];
+            return NO;
+        }
+    }
+    
+    libssh2_sftp_close(handle);
+    [outputStream close];
+    
+    if (rc < 0) {
+        return NO;
+    }
+    
+    return YES;
+}
 - (BOOL)writeContents:(NSData *)contents toFileAtPath:(NSString *)path {
     return [self writeContents:contents toFileAtPath:path progress:nil];
 }
@@ -427,6 +494,7 @@
     
     return YES;
 }
+
 
 - (BOOL)appendContents:(NSData *)contents toFileAtPath:(NSString *)path {
     return [self appendStream:[NSInputStream inputStreamWithData:contents] toFileAtPath:path];
