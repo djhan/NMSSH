@@ -353,7 +353,7 @@
         }
         
         got += rc;
-        if (progress && !progress(got, length)) {
+        if (progress && !progress(got, fileSize)) {
             libssh2_sftp_close(handle);
             [outputStream close];
             return NO;
