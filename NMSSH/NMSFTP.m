@@ -245,6 +245,24 @@
         return nil;
     }
 }
+- (NSData *)contentsAtPath:(NSString *)path
+                fromOffset:(uint64_t)offset
+                    length:(uint64_t)length
+                  progress:(BOOL (^)(NSUInteger, NSUInteger))progress {
+    NSOutputStream *outputStream = [NSOutputStream outputStreamToMemory];
+    
+    BOOL success = [self readContentsAtPath:path
+                                 fromOffset:offset
+                                     length:length
+                                   toStream:outputStream
+                                   progress:progress];
+    
+    if (success) {
+        return [outputStream propertyForKey:NSStreamDataWrittenToMemoryStreamKey];
+    } else {
+        return nil;
+    }
+}
 
 - (BOOL)contentsAtPath:(NSString *)path toStream:(NSOutputStream *)outputStream progress:(BOOL (^)(NSUInteger, NSUInteger))progress {
     return [self readContentsAtPath:path toStream:outputStream progress:progress];
@@ -324,10 +342,6 @@
     
     NSUInteger fileSize = (NSUInteger)[file.fileSize integerValue];
 
-    if (offset >= fileSize) {
-        NMSSHLogWarn(@"contentsAtPath:fromOffset:progress: offset이 fileSize 이상");
-        return false;
-    }
     if (offset + length > fileSize) {
         NMSSHLogWarn(@"contentsAtPath:fromOffset:progress: offset + length가 fileSize 이상");
         return false;
@@ -357,10 +371,10 @@
             return NO;
         }
         
-        got += rc;
+        got += writeResult;
         // bytesLeft 에서 현재까지 받은 데이터 양을 뺀다
         bytesLeft -= got;
-        if (progress && !progress(got, fileSize)) {
+        if (progress && !progress(got, length)) {
             libssh2_sftp_close(handle);
             [outputStream close];
             return NO;

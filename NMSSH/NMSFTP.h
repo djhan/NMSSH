@@ -164,6 +164,20 @@
 - (nullable NSData *)contentsAtPath:(nonnull NSString *)path progress:(BOOL (^_Nullable)(NSUInteger got, NSUInteger totalBytes))progress;
 
 /**
+ 특정 경로의 데이터를 특정 영역만 추출해 반환
+
+ @param path An existing file path
+ @param offset 시작 지점
+ @param length  데이터 크기
+ @param progress 가져온 데이터 / 전체 크기 반환
+ @returns 가져온 데이터를 반환
+ */
+- (nullable NSData *)contentsAtPath:(nonnull NSString *)path
+                         fromOffset:(uint64_t)offset
+                             length:(uint64_t)length
+                           progress:(nonnull BOOL (^)(NSUInteger, NSUInteger))progress;
+
+/**
  Refer to contentsAtPath:
  
  This adds the ability to get periodic updates to bytes received.
