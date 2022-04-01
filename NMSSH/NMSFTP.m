@@ -342,16 +342,24 @@
     
     NSUInteger fileSize = (NSUInteger)[file.fileSize integerValue];
 
-    if (offset + length > fileSize) {
-        NMSSHLogWarn(@"contentsAtPath:fromOffset:progress: offset + length가 fileSize 이상");
+    if (offset > fileSize) {
+        NMSSHLogWarn(@"contentsAtPath:fromOffset:progress: offset 위치가 fileSize 이상");
         return false;
+    }
+    
+    NSUInteger targetSize = length;
+    if (offset + length > fileSize) {
+        NMSSHLogWarn(@"contentsAtPath:fromOffset:progress: offset + length가 fileSize 이상. 전송 길이를 조정");
+        //return false;
+        // targetSize 를 조정
+        targetSize = fileSize - offset;
     }
     [outputStream setProperty:[NSNumber numberWithUnsignedLongLong:offset] forKey:NSStreamFileCurrentOffsetKey];
     
     char buffer[self.bufferSize];
     ssize_t rc;
     NSUInteger got = 0;
-    NSUInteger bytesLeft = length;
+    NSUInteger bytesLeft = targetSize;
     while ((rc = libssh2_sftp_read(handle, buffer, (ssize_t)sizeof(buffer))) > 0) {
         NSUInteger remainingBytes = rc;
         if (remainingBytes > bytesLeft) {
@@ -374,7 +382,7 @@
         got += writeResult;
         // bytesLeft 에서 현재까지 받은 데이터 양을 뺀다
         bytesLeft -= got;
-        if (progress && !progress(got, length)) {
+        if (progress && !progress(got, targetSize)) {
             libssh2_sftp_close(handle);
             [outputStream close];
             return NO;
