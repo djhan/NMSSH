@@ -102,6 +102,15 @@
  @returns List of relative paths
  */
 - (nullable NSArray<NMSFTPFile *> *)contentsOfDirectoryAtPath:(nonnull NSString *)path;
+/**
+ 완료 핸들러로 리스트 항목을 가져오는 메쏘드
+
+ @param path 리스트를 가져올 경로
+ @param completion 완료 핸들러. NSError 로 에러, NSArray 로 결과 반환
+ @returns `NSProgress` 반환. 접근 실패시 nil 반환
+ */
+- (NSProgress * _Nullable)contentsOfDirectoryWithProgressAtPath:(NSString * _Nonnull)path
+                                                     completion:(void(^ _Nonnull)(NSError * _Nullable error, NSArray * _Nullable content))completion;
 
 /// ----------------------------------------------------------------------------
 /// @name Manipulate symlinks and files

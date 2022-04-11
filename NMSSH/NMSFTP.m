@@ -166,20 +166,18 @@
 }
 
 - (NSProgress * _Nullable)contentsOfDirectoryWithProgressAtPath:(NSString * _Nonnull)path
-                                                     completion:(void(^)(BOOL wasComplete, NSError * _Nullable error, NSArray * _Nullable content))completion {
+                                                     completion:(void(^ _Nonnull)(NSError * _Nullable error, NSArray * _Nullable content))completion {
     LIBSSH2_SFTP_HANDLE *handle = [self openDirectoryAtPath:path];
     
     if (!handle) {
         NSError *error = [[NSError alloc] initWithDomain: SSHErrorDomain code: SSHConnectionError userInfo: nil];
-        completion(true, error, nil);
+        completion(error, nil);
         return nil;
     }
 
     NSProgress *progress = [[NSProgress alloc] init];
     progress.totalUnitCount = -1;
 
-    // 약한 참조 설정
-    //__weak __typeof (self) weakSelf = self;
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         __autoreleasing NSError *error;
 
@@ -187,7 +185,7 @@
             // 중지 처리
             error = [[NSError alloc] initWithDomain: SSHErrorDomain code: SSHAbortedError userInfo: nil];
             progress.totalUnitCount += 1;
-            completion(true, error, nil);
+            completion(error, nil);
         }
         
         __autoreleasing NSArray *ignoredFiles = @[@".", @".."];
@@ -225,21 +223,21 @@
             // 중지 처리
             error = [[NSError alloc] initWithDomain: SSHErrorDomain code: SSHAbortedError userInfo: nil];
             progress.totalUnitCount += 1;
-            completion(true, error, nil);
+            completion(error, nil);
         }
 
         if (rc < 0) {
             // 디렉토리 읽기 실패
             error = [[NSError alloc] initWithDomain: SSHErrorDomain code: SSHReadDirectoryError userInfo: nil];
             progress.totalUnitCount += 1;
-            completion(true, error, nil);
+            completion(error, nil);
         }
 
         __autoreleasing NSArray *results = [contents sortedArrayUsingComparator:^NSComparisonResult(id obj1, id obj2) {
             return [obj1 compare:obj2];
         }];
         progress.totalUnitCount += 1;
-        completion(true, nil, results);
+        completion(nil, results);
     });
     
     return progress;
