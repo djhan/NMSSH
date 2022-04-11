@@ -1,6 +1,12 @@
 #import "NMSSHConfig.h"
 #import "NMSSHHostConfig.h"
 
+/**
+ * 에러 도메인
+ */
+NSString* _Nonnull const SSHErrorDomain = @"SSHErrorDomain";
+
+
 /** Describes how a host string matches a pattern in a NMSSHHostConfig. */
 typedef enum {
     /** Host matches a pattern */

@@ -165,6 +165,86 @@
     }];
 }
 
+- (NSProgress * _Nullable)contentsOfDirectoryWithProgressAtPath:(NSString * _Nonnull)path
+                                                     completion:(void(^)(BOOL wasComplete, NSError * _Nullable error, NSArray * _Nullable content))completion {
+    LIBSSH2_SFTP_HANDLE *handle = [self openDirectoryAtPath:path];
+    
+    if (!handle) {
+        NSError *error = [[NSError alloc] initWithDomain: SSHErrorDomain code: SSHConnectionError userInfo: nil];
+        completion(true, error, nil);
+        return nil;
+    }
+
+    NSProgress *progress = [[NSProgress alloc] init];
+    progress.totalUnitCount = -1;
+
+    // 약한 참조 설정
+    //__weak __typeof (self) weakSelf = self;
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        __autoreleasing NSError *error;
+
+        if (progress.isCancelled) {
+            // 중지 처리
+            error = [[NSError alloc] initWithDomain: SSHErrorDomain code: SSHAbortedError userInfo: nil];
+            progress.totalUnitCount += 1;
+            completion(true, error, nil);
+        }
+        
+        __autoreleasing NSArray *ignoredFiles = @[@".", @".."];
+        __autoreleasing NSMutableArray *contents = [NSMutableArray array];
+
+        int rc;
+        
+        do {
+            if (progress.isCancelled) {
+                // 중지 처리
+                break;
+            }
+
+            char buffer[512];
+            LIBSSH2_SFTP_ATTRIBUTES fileAttributes;
+
+            rc = libssh2_sftp_readdir(handle, buffer, sizeof(buffer), &fileAttributes);
+
+            if (rc > 0) {
+                NSString *fileName = [[NSString alloc] initWithBytes:buffer length:rc encoding:NSUTF8StringEncoding];
+                if (![ignoredFiles containsObject:fileName]) {
+                    // Append a "/" at the end of all directories
+                    if (LIBSSH2_SFTP_S_ISDIR(fileAttributes.permissions)) {
+                        fileName = [fileName stringByAppendingString:@"/"];
+                    }
+
+                    NMSFTPFile *file = [[NMSFTPFile alloc] initWithFilename:fileName];
+                    [file populateValuesFromSFTPAttributes:fileAttributes];
+                    [contents addObject:file];
+                }
+            }
+        } while (rc > 0);
+
+        if (progress.isCancelled) {
+            // 중지 처리
+            error = [[NSError alloc] initWithDomain: SSHErrorDomain code: SSHAbortedError userInfo: nil];
+            progress.totalUnitCount += 1;
+            completion(true, error, nil);
+        }
+
+        if (rc < 0) {
+            // 디렉토리 읽기 실패
+            error = [[NSError alloc] initWithDomain: SSHErrorDomain code: SSHReadDirectoryError userInfo: nil];
+            progress.totalUnitCount += 1;
+            completion(true, error, nil);
+        }
+
+        __autoreleasing NSArray *results = [contents sortedArrayUsingComparator:^NSComparisonResult(id obj1, id obj2) {
+            return [obj1 compare:obj2];
+        }];
+        progress.totalUnitCount += 1;
+        completion(true, nil, results);
+    });
+    
+    return progress;
+}
+
 // -----------------------------------------------------------------------------
 #pragma mark - MANIPULATE SYMLINKS AND FILES
 // -----------------------------------------------------------------------------

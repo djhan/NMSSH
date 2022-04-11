@@ -1,5 +1,38 @@
 #import "NMSSH.h"
 
+// MARK: - Error Constant -
+/**
+ * 에러 도메인
+ */
+extern NSString* _Nonnull const SSHErrorDomain;
+
+/**
+ * 에러 종류
+ */
+typedef NS_ENUM(NSInteger, SSHErrorCode) {
+    /// 연결 실패 에러
+    SSHConnectionError,
+
+    /// 인증 실패 에러
+    SSHAuthenticationError,
+
+    /// 디렉토리를 읽을 수 없음
+    SSHReadDirectoryError,
+
+    /// 수신 실패 에러
+    SSHReceiveError,
+    /// 송신 실패 에러
+    SSHSendError,
+
+    /// 사용자 중지
+    SSHAbortedError,
+    
+    /// 알 수 없는 에러
+    SSHUnknownError,
+};
+
+// MARK: - NMSSHHostConfig Class -
+
 @class NMSSHHostConfig;
 
 /**
