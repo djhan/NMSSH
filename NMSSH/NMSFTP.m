@@ -166,12 +166,12 @@
 }
 
 - (NSProgress * _Nullable)contentsOfDirectoryWithProgressAtPath:(NSString * _Nonnull)path
-                                                     completion:(void(^ _Nonnull)(NSError * _Nullable error, NSArray<NMSFTPFile *> * _Nullable contents))completion {
+                                                     completion:(void(^ _Nonnull)(NSArray<NMSFTPFile *> * _Nullable contents, NSError * _Nullable error))completion {
     LIBSSH2_SFTP_HANDLE *handle = [self openDirectoryAtPath:path];
     
     if (!handle) {
         NSError *error = [[NSError alloc] initWithDomain: SSHErrorDomain code: SSHConnectionError userInfo: nil];
-        completion(error, nil);
+        completion(nil, error);
         return nil;
     }
 
@@ -185,7 +185,7 @@
             // 중지 처리
             error = [[NSError alloc] initWithDomain: SSHErrorDomain code: SSHAbortedError userInfo: nil];
             progress.totalUnitCount += 1;
-            completion(error, nil);
+            completion(nil, error);
         }
         
         __autoreleasing NSArray *ignoredFiles = @[@".", @".."];
@@ -223,21 +223,21 @@
             // 중지 처리
             error = [[NSError alloc] initWithDomain: SSHErrorDomain code: SSHAbortedError userInfo: nil];
             progress.totalUnitCount += 1;
-            completion(error, nil);
+            completion(nil, error);
         }
 
         if (rc < 0) {
             // 디렉토리 읽기 실패
             error = [[NSError alloc] initWithDomain: SSHErrorDomain code: SSHReadDirectoryError userInfo: nil];
             progress.totalUnitCount += 1;
-            completion(error, nil);
+            completion(nil, error);
         }
 
         __autoreleasing NSArray *results = [contents sortedArrayUsingComparator:^NSComparisonResult(id obj1, id obj2) {
             return [obj1 compare:obj2];
         }];
         progress.totalUnitCount += 1;
-        completion(nil, results);
+        completion(results, nil);
     });
     
     return progress;
