@@ -166,7 +166,7 @@
 }
 
 - (NSProgress * _Nullable)contentsOfDirectoryWithProgressAtPath:(NSString * _Nonnull)path
-                                                     completion:(void(^ _Nonnull)(NSError * _Nullable error, NSArray * _Nullable content))completion {
+                                                     completion:(void(^ _Nonnull)(NSError * _Nullable error, NSArray<NMSFTPFile *> * _Nullable contents))completion {
     LIBSSH2_SFTP_HANDLE *handle = [self openDirectoryAtPath:path];
     
     if (!handle) {

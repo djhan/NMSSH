@@ -110,7 +110,7 @@
  @returns `NSProgress` 반환. 접근 실패시 nil 반환
  */
 - (NSProgress * _Nullable)contentsOfDirectoryWithProgressAtPath:(NSString * _Nonnull)path
-                                                     completion:(void(^ _Nonnull)(NSError * _Nullable error, NSArray * _Nullable content))completion;
+                                                     completion:(void(^ _Nonnull)(NSError * _Nullable error, NSArray<NMSFTPFile *> * _Nullable contents))completion;
 
 /// ----------------------------------------------------------------------------
 /// @name Manipulate symlinks and files
