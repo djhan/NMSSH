@@ -413,11 +413,11 @@
 			};
 			buildConfigurationList = E4E96D7D158E10FD002E6E0A /* Build configuration list for PBXProject "NMSSH" */;
 			compatibilityVersion = "Xcode 3.2";
-			developmentRegion = English;
+			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
-				English,
 				en,
+				Base,
 			);
 			mainGroup = E4E96D78158E10FD002E6E0A;
 			productRefGroup = E4E96D85158E10FD002E6E0A /* Products */;
