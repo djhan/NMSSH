@@ -408,6 +408,7 @@
         return NO;
     }
     
+    //NSLog(@"contentsAtPath:fromOffset:progress: %@ >> offset = %llu, length = %llu", path, offset, length);
     NMSFTPFile *file = [self infoForFileAtPath:path];
     if (!file) {
         NMSSHLogWarn(@"contentsAtPath:fromOffset:progress: failed to get file attributes");
@@ -432,7 +433,8 @@
         // targetSize 를 조정
         targetSize = fileSize - offset;
     }
-    
+    //NSLog(@"contentsAtPath:fromOffset:progress: %@ >> targetSize = %lu", path, targetSize);
+
     char buffer[self.bufferSize];
     ssize_t rc;
     NSUInteger got = 0;
@@ -440,12 +442,14 @@
 
     libssh2_sftp_seek64(handle, offset);
 
-    while ((rc = libssh2_sftp_read(handle, buffer, (ssize_t)sizeof(buffer))) > 0) {
+    while ((rc = libssh2_sftp_read(handle, buffer, (ssize_t)sizeof(buffer))) > 0 &&
+           bytesLeft > 0) {
         NSUInteger remainingBytes = rc;
         if (remainingBytes > bytesLeft) {
             // bytesLeft 초과시, remaingBytes를 bytesLeft 로 지정
             remainingBytes = bytesLeft;
         }
+        //NSLog(@"contentsAtPath:fromOffset:progress: remainingBytes = %li", remainingBytes);
 
         NSInteger writeResult;
         do {
@@ -453,6 +457,8 @@
             remainingBytes -= MAX(0, writeResult);
         } while (remainingBytes > 0 && writeResult > 0);
         
+        //NSLog(@"contentsAtPath:fromOffset:progress: writeResult = %li", writeResult);
+
         if (writeResult < 0 || (writeResult == 0 && remainingBytes > 0)) {
             libssh2_sftp_close(handle);
             [outputStream close];
@@ -460,8 +466,12 @@
         }
         
         got += writeResult;
-        // bytesLeft 에서 현재까지 받은 데이터 양을 뺀다
-        bytesLeft -= got;
+        //NSLog(@"contentsAtPath:fromOffset:progress: got = %li", got);
+        // bytesLeft 에서 현재 받은 데이터 양을 뺀다
+        bytesLeft -= writeResult;
+        
+        //NSLog(@"contentsAtPath:fromOffset:progress: bytesLeft = %li", bytesLeft);
+
         if (progress && !progress(got, targetSize)) {
             libssh2_sftp_close(handle);
             [outputStream close];
