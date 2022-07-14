@@ -191,7 +191,7 @@
         __autoreleasing NSArray *ignoredFiles = @[@".", @".."];
         __autoreleasing NSMutableArray *contents = [NSMutableArray array];
 
-        int rc;
+        int rc = 0;
         
         do {
             if (progress.isCancelled) {
