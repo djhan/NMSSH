@@ -132,6 +132,7 @@
 		E4F1E67B159F5923007B0B2F /* NMSSHChannelTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NMSSHChannelTests.m; sourceTree = "<group>"; };
 		E4F1E67E159F5B13007B0B2F /* NMSSHChannel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NMSSHChannel.h; sourceTree = "<group>"; };
 		E4F1E67F159F5B13007B0B2F /* NMSSHChannel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NMSSHChannel.m; sourceTree = "<group>"; };
+		EE400FAB2E650DB50098F5B4 /* module.modulemap */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.module-map"; path = module.modulemap; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -210,6 +211,7 @@
 		E4E96D78158E10FD002E6E0A = {
 			isa = PBXGroup;
 			children = (
+				EE400FAB2E650DB50098F5B4 /* module.modulemap */,
 				E4E96D8D158E10FD002E6E0A /* NMSSH */,
 				E4E96DA3158E10FD002E6E0A /* NMSSHTests */,
 				E4E96D86158E10FD002E6E0A /* Frameworks */,
@@ -594,6 +596,7 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				FRAMEWORK_VERSION = A;
@@ -622,6 +625,7 @@
 				ARCHS = "$(ARCHS_STANDARD)";
 				COMBINE_HIDPI_IMAGES = YES;
 				DEAD_CODE_STRIPPING = YES;
+				DEFINES_MODULE = YES;
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				FRAMEWORK_VERSION = A;

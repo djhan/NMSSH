@@ -1,0 +1,23 @@
+//
+//  module.modulemap
+//  NMSSH
+//
+//  Created by DJ.HAN on 9/1/25.
+//
+
+module NMSSH {
+    header "libssh2.h"
+    header "libssh2_sftp.h"
+
+    header "NMSSHSessionDelegate.h"
+    header "NMSSHChannelDelegate.h"
+    header "NMSSHSession.h"
+    header "NMSSHChannel.h"
+    header "NMSFTP.h"
+    header "NMSFTPFile.h"
+    header "NMSSHConfig.h"
+    header "NMSSHHostConfig.h"
+    header "NMSSHLogger.h"
+    
+    export *
+}
