@@ -13,19 +13,19 @@
 #ifndef _NMSSH_
 #define _NMSSH_
 
-#import "libssh2.h"
-#import "libssh2_sftp.h"
+#import <NMSSH/libssh2.h>
+#import <NMSSH/libssh2_sftp.h>
 
-#import "NMSSHSessionDelegate.h"
-#import "NMSSHChannelDelegate.h"
+#import <NMSSH/NMSSHSessionDelegate.h>
+#import <NMSSH/NMSSHChannelDelegate.h>
 
-#import "NMSSHSession.h"
-#import "NMSSHChannel.h"
-#import "NMSFTP.h"
-#import "NMSFTPFile.h"
-#import "NMSSHConfig.h"
-#import "NMSSHHostConfig.h"
+#import <NMSSH/NMSSHSession.h>
+#import <NMSSH/NMSSHChannel.h>
+#import <NMSSH/NMSFTP.h>
+#import <NMSSH/NMSFTPFile.h>
+#import <NMSSH/NMSSHConfig.h>
+#import <NMSSH/NMSSHHostConfig.h>
 
-#import "NMSSHLogger.h"
+#import <NMSSH/NMSSHLogger.h>
 
 #endif

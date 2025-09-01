@@ -1,4 +1,4 @@
-#import "NMSSH.h"
+#import <NMSSH/NMSSH.h>
 
 /**
  The NMSFTPFile class provides an interface to store file attributes retrieved 

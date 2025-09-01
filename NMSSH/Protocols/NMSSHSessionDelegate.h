@@ -1,4 +1,4 @@
-#import "NMSSH.h"
+#import <NMSSH/NMSSH.h>
 
 @class NMSSHSession;
 

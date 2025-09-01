@@ -38,7 +38,7 @@
 #ifndef LIBSSH2_SFTP_H
 #define LIBSSH2_SFTP_H 1
 
-#include "libssh2.h"
+#include <NMSSH/libssh2.h>
 
 #ifndef WIN32
 #include <unistd.h>
